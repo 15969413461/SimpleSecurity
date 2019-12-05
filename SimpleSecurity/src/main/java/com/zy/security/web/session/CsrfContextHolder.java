@@ -16,7 +16,7 @@ import com.zy.utils.Assert;
 * 限制: 外部程序不可与本类的包名相同，否则外部程序可修改保存的映射关系.
 * @version 
 */
-public class CsrfContextHolder {
+public final class CsrfContextHolder {
 	private static Map<String,String> csrfMap = new ConcurrentHashMap<>() ;
 	
 	public static String getCsrfBySessionId(HttpServletRequest request) {

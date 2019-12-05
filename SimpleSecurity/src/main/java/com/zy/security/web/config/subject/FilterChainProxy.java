@@ -31,7 +31,7 @@ import com.zy.security.web.util.DebugEnabled;
 public class FilterChainProxy implements Filter {
 	private Logger logger = LoggerFactory.getLogger(FilterChainProxy.class);
 	
-	// 过滤器链
+	// 过滤器容器
 	private List<Filter> filters;
 	private VirtualFilterChain vfc;
 	

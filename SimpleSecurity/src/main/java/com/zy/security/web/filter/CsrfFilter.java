@@ -42,13 +42,22 @@ public abstract class CsrfFilter implements Filter {
 	// 最大比对次数
 	private int maxCsrfTokenCount;
 	
+	public CsrfFilter(CsrfTokenRepository tokenRepository) {
+		this(tokenRepository, new AccessDeniedHandlerImpl(),5);
+	}
 	/**
 	 * 构造器，默认使用AccessDeniedHandlerImpl进行访问拒绝处理,最大比对次数5次
 	 * @param tokenRepository
 	 */
-	public CsrfFilter(CsrfTokenRepository tokenRepository) {
-		this(tokenRepository, new AccessDeniedHandlerImpl(),5);
+	public CsrfFilter(CsrfTokenRepository tokenRepository, AccessDeniedHandler accessDeniedHandler,
+			List<RequestMatcher> list, int maxCsrfTokenCount) {
+		super();
+		this.tokenRepository = tokenRepository;
+		this.accessDeniedHandler = accessDeniedHandler;
+		this.list = list;
+		this.maxCsrfTokenCount = maxCsrfTokenCount;
 	}
+
 	public CsrfFilter(CsrfTokenRepository tokenRepository,int maxCsrfTokenCount) {
 		this(tokenRepository, new AccessDeniedHandlerImpl(),maxCsrfTokenCount);
 	}

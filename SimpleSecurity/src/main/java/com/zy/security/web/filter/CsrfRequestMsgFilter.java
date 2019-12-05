@@ -1,10 +1,13 @@
 
 package com.zy.security.web.filter;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.zy.security.web.interfaces.AccessDeniedHandler;
+import com.zy.security.web.interfaces.RequestMatcher;
 import com.zy.security.web.session.SessionCsrfTokenRepository;
 import com.zy.security.web.session.interfaces.CsrfToken;
 import com.zy.security.web.session.interfaces.CsrfTokenRepository;
@@ -16,7 +19,11 @@ import com.zy.security.web.session.interfaces.CsrfTokenRepository;
 * @version 
 */
 public class CsrfRequestMsgFilter extends CsrfFilter {
-
+	
+	public CsrfRequestMsgFilter(CsrfTokenRepository tokenRepository, AccessDeniedHandler accessDeniedHandler,
+			List<RequestMatcher> list, int maxCsrfTokenCount) {
+		super(tokenRepository, accessDeniedHandler, list, maxCsrfTokenCount);
+	}
 	public CsrfRequestMsgFilter(CsrfTokenRepository tokenRepository) {
 		super(tokenRepository);
 	}
@@ -33,7 +40,7 @@ public class CsrfRequestMsgFilter extends CsrfFilter {
 	public CsrfRequestMsgFilter(CsrfTokenRepository tokenRepository,AccessDeniedHandler handler,int maxCsrfTokenCount) {
 		super(tokenRepository,handler,maxCsrfTokenCount);
 	}
-
+	
 	@Override
 	protected String attemptCstfToken (HttpServletRequest req, HttpServletResponse resp,CsrfToken csrfToken) {
 		String actualToken = req.getHeader(csrfToken.getHeaderName());

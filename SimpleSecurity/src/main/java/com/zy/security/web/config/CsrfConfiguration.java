@@ -167,6 +167,13 @@ public class CsrfConfiguration extends AbstractHttpConfigurer<HttpSecurity> {
 		return this.headerName;
 	}
 	
+	private int getMaxCsrfTokenCount() {
+		if (this.maxCsrfTokenCount == 0) {
+			this.maxCsrfTokenCount = 5;
+		}
+		return this.maxCsrfTokenCount;
+	}
+	
 	@SuppressWarnings("unused")
 	private String getCookieName() {
 		if (this.cookieName == null) {
@@ -186,8 +193,8 @@ public class CsrfConfiguration extends AbstractHttpConfigurer<HttpSecurity> {
 		this.accessDeniedHandler.setErrorPage(errorPage);
 		this.accessDeniedHandler.setRequestCache(http.getRequestCache());
 		http.setAccessDeniedHandler(this.accessDeniedHandler);
-		
-		return new CsrfRequestMsgFilter(getCsrfTokenRepository(), accessDeniedHandler, maxCsrfTokenCount);
+		return new CsrfRequestMsgFilter(getCsrfTokenRepository(), getAccessDeniedHandler()
+				, requireCsrfProtectionMatcher, getMaxCsrfTokenCount());
 	}
 
 

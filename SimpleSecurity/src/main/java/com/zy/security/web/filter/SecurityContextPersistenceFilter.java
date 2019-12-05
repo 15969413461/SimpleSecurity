@@ -19,7 +19,7 @@ import com.zy.security.core.context.SecurityContextStrategy;
 /**
 * @author zy
 * @Date 2019-11-18 周一 下午 23:40:43
-* @Description 负责从 SecurityContextThreadLocalHandler中获取SecurityContext,
+* @Description 负责从 SecurityContextStrategy中获取SecurityContext,
 * @version 
 */
 public class SecurityContextPersistenceFilter implements Filter {
