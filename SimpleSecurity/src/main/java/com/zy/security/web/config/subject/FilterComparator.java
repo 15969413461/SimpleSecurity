@@ -31,15 +31,13 @@ public class FilterComparator implements Comparator<Filter> {
 	private static final int STEP = 10;
 	/** 集合排序的依照 */
 	private Map<String, Integer> filterToOrder = new HashMap<>();
-	
+	private int order;
 	
 	public FilterComparator() {
-		int order = 0;
 		put(SecurityContextPersistenceFilter.class, STEP);
 		
 		order = STEP;
 		put(CsrfFilter.class, order);
-		// 为子类通过过滤器位置
 		put(CsrfCookieFilter.class, ++order);
 		put(CsrfRequestMsgFilter.class, ++order);
 		
@@ -105,22 +103,20 @@ public class FilterComparator implements Comparator<Filter> {
 	}
 
 	/**
-	 * 允许在一个已知的筛选器类(以添加到filter列表中的过滤器)之后添加筛选器
-	 * @param filter - 要在类型Afterfilter之后注册的筛选器(需要注册的过滤器)
-	 * @param afterFilter - 已知过滤器，存在于过滤器集合中
+	 * 允许在某个已知过滤器(已注册的过滤器)之前添加过滤器
+	 * @param filter - 注册的过滤器
+	 * @param beforeFilter - 已注册的过滤器
 	 */
-	public void registerAfter(Class<? extends Filter> filter,Class<? extends Filter> afterFilter) {
-		
-		Integer position = getOrder(afterFilter);
+	public void registerBefore(Class<? extends Filter> filter,Class<? extends Filter> beforeFilter) {
+		Integer position = getOrder(beforeFilter);
 		if (position == null) {
-			throw new IllegalArgumentException("已注册的过滤器排序标识不存在，by：" + afterFilter);
+			throw new IllegalArgumentException("已注册的过滤器排序标识不存在，by：" + beforeFilter);
 		}
-
-		put(filter, ++position);
+		put(filter, --position);
 	}
-
+	
 	/**
-	 * 在指定筛选器类的位置添加筛选器
+	 * 在指定已知过滤器(已注册的过滤器)的所在位置添加过滤器,而原位置的过滤器往后移一位
 	 * @param filter - 注册的过滤器
 	 * @param atFilter - 已注册的过滤器
 	 */
@@ -133,17 +129,34 @@ public class FilterComparator implements Comparator<Filter> {
 		put(filter, position);
 		put(atFilter, ++position);
 	}
-
+	
 	/**
-	 * 允许在某个已知筛选器类之前添加筛选器
-	 * @param filter - 注册的过滤器
-	 * @param beforeFilter - 已注册的过滤器
+	 * 允许在一个已知的过滤器(已注册的过滤器)之后添加过滤器
+	 * @param filter - 要在类型Afterfilter之后注册的过滤器
+	 * @param afterFilter - 已知过滤器，存在于过滤器集合中
 	 */
-	public void registerBefore(Class<? extends Filter> filter,Class<? extends Filter> beforeFilter) {
-		Integer position = getOrder(beforeFilter);
+	public void registerAfter(Class<? extends Filter> filter,Class<? extends Filter> afterFilter) {
+		Integer position = getOrder(afterFilter);
 		if (position == null) {
-			throw new IllegalArgumentException("已注册的过滤器排序标识不存在，by：" + beforeFilter);
+			throw new IllegalArgumentException("已注册的过滤器排序标识不存在，by：" + afterFilter);
 		}
-		put(filter, --position);
+
+		put(filter, ++position);
+	}
+	
+	/**
+	 * 允许在过滤器链末尾添加过滤器
+	 * @param filter - 要在过滤器链末尾注册的过滤器
+	 */
+	public void registerEnd(Class<? extends Filter> filter) {
+		Integer position = getOrder(filter);
+		if (position != null) {
+			throw new IllegalArgumentException("此过滤器排序标识已存在，by：" + filter);
+		}
+		put(filter, ++this.order);
+	}
+
+	public Map<String, Integer> getFilterToOrder() {
+		return filterToOrder;
 	}
 }

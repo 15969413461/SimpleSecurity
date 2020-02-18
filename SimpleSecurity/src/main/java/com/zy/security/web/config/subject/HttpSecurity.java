@@ -51,6 +51,7 @@ public final class HttpSecurity implements AbstractHttpSecurity {
 	private Map<String,Integer> index = new HashMap<>();
 	private List<AbstractHttpConfigurer<HttpSecurity>> configs = new LinkedList<>();
 	
+	private FilterComparator filterComparator =  new FilterComparator();
 	
 	/**
 	 * 永远存储的是最根本的AuthenticationManager.<br/>
@@ -138,6 +139,50 @@ public final class HttpSecurity implements AbstractHttpSecurity {
 	public AuthorizationConfiguration authorizeRequests() {
 		return getOrApply(new AuthorizationConfiguration(this));
 	}
+	
+	/**
+	 * 允许在一个已知的过滤器(已注册的过滤器)之后添加过滤器
+	 * @param filter - 要在类型Afterfilter之后注册的过滤器
+	 * @param afterFilter - 已知过滤器，存在于过滤器集合中
+	 */
+	public HttpSecurity addFilterAfter(Filter filter,Class<? extends Filter> afterFilter) {
+		filterComparator.registerAfter(filter.getClass(), afterFilter);
+		filters.add(filter);
+		return this; 
+	}
+	
+	/**
+	 * 在指定已知过滤器(已注册的过滤器)的所在位置添加过滤器,而原位置的过滤器往后移一位
+	 * @param filter - 注册的过滤器
+	 * @param atFilter - 已注册的过滤器
+	 */
+	public HttpSecurity addFilterAt(Filter filter,Class<? extends Filter> atFilter) {
+		filterComparator.registerAt(filter.getClass(), atFilter);
+		filters.add(filter);
+		return this; 
+	}
+	
+	/**
+	 * 允许在某个已知过滤器(已注册的过滤器)之前添加过滤器
+	 * @param filter - 注册的过滤器
+	 * @param beforeFilter - 已注册的过滤器
+	 */
+	public HttpSecurity addFilterBefore(Filter filter,Class<? extends Filter> beforeFilter) {
+		filterComparator.registerBefore(filter.getClass(), beforeFilter);
+		filters.add(filter);
+		return this; 
+	}
+	
+	/**
+	 * 在过滤器链末尾追加一个过滤器
+	 * @return
+	 */
+	public HttpSecurity addFilter(Filter filter) {
+		filterComparator.registerEnd(filter.getClass());
+		filters.add(filter);
+		return this; 
+	}
+	
 	
 //	public HttpSecurity disableCsrfConfig() {
 //		this.enableCsrf = false;
@@ -244,7 +289,7 @@ public final class HttpSecurity implements AbstractHttpSecurity {
 			// 分别调用各个配置存储类的config方法创建Filter
 			configurer.config();
 		}
-		Collections.sort(this.filters, new FilterComparator());
+		Collections.sort(this.filters, filterComparator);
 		
 		logger.info("FIlter链初始化完毕.");
 		return this.filters;
